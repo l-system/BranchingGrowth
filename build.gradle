@@ -1,16 +1,13 @@
 buildscript {
-
-
     repositories {
         mavenLocal()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
         google()
     }
     dependencies {
-
-
+        // Add any buildscript dependencies here if needed
     }
 }
 
@@ -18,9 +15,10 @@ allprojects {
     apply plugin: "eclipse"
 
     version = '1.0'
+
     ext {
         appName = "libgdx-demo"
-        gdxVersion = '1.11.0'
+        gdxVersion = '1.11.0'  // Keep consistent with your current setup
         roboVMVersion = '2.3.19'
         box2DLightsVersion = '1.5'
         ashleyVersion = '1.7.4'
@@ -33,15 +31,44 @@ allprojects {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url "https://jitpack.io" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url = "https://jitpack.io" }
+    }
+}
+
+// Configure Java version for all projects
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
 project(":desktop") {
     apply plugin: "java-library"
+    apply plugin: "application"
 
+    // Use the modern application block instead of mainClassName
+    application {
+        mainClass = "com.branching_growth.DesktopLauncher"
+
+        // Add JVM arguments to suppress audio warnings
+        applicationDefaultJvmArgs = [
+                "-Dorg.lwjgl.openal.explicitInit=true",
+                "-Dorg.lwjgl.util.NoChecks=true",
+                "-Dorg.lwjgl.util.Debug=false"
+        ]
+
+        // Add macOS support
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            applicationDefaultJvmArgs += "-XstartOnFirstThread"
+        }
+    }
+
+    sourceSets.main.java.srcDirs = ["src/"]
+    sourceSets.main.resources.srcDirs = ["../assets"]
 
     dependencies {
         implementation project(":core")
@@ -49,27 +76,25 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
+        api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-
-        implementation "com.badlogicgames.gdx:gdx:1.11.0"
-        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.11.0"
-        implementation "com.badlogicgames.gdx:gdx-platform:1.11.0:natives-desktop"
-        implementation "com.badlogicgames.gdx:gdx-box2d-platform:1.11.0:natives-desktop"
-        implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.11.0:natives-desktop"
-
-
     }
+
+    eclipse.project.name = appName + "-desktop"
 }
 
 project(":core") {
     apply plugin: "java-library"
 
+    sourceSets.main.java.srcDirs = ["src/"]
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-
     }
+
+    eclipse.project.name = appName + "-core"
 }

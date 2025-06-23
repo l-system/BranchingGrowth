@@ -66,7 +66,7 @@ public class BranchSimulation extends ApplicationAdapter {
         setupGraphics();
 
         // Load shaders
-        shader = loadShader("assets/shaders/vertex_shader.glsl", "assets/shaders/fragment_shader.glsl");
+        shader = loadShader();
 
         // Get uniform locations
         u_timeLocation = shader.getUniformLocation("u_time");
@@ -92,8 +92,9 @@ public class BranchSimulation extends ApplicationAdapter {
         batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
     }
 
-    private ShaderProgram loadShader(String vertexPath, String fragmentPath) {
-        ShaderProgram shader = new ShaderProgram(Gdx.files.internal(vertexPath), Gdx.files.internal(fragmentPath));
+    private ShaderProgram loadShader() {
+        // Fixed: Removed "assets/" from the paths since LibGDX automatically looks in assets/
+        ShaderProgram shader = new ShaderProgram(Gdx.files.internal("shaders/vertex_shader.glsl"), Gdx.files.internal("shaders/fragment_shader.glsl"));
         if (!shader.isCompiled()) {
             Gdx.app.error("Shader", "Shader compilation failed: " + shader.getLog());
         }
@@ -161,7 +162,7 @@ public class BranchSimulation extends ApplicationAdapter {
 
     private void renderBatch() {
         batch.begin();
-        shader.begin();
+        shader.bind();
 
         float currentDeltaTime = Gdx.graphics.getDeltaTime(); // Store delta time for reuse
         shader.setUniformf(u_timeLocation, currentDeltaTime);
@@ -177,8 +178,7 @@ public class BranchSimulation extends ApplicationAdapter {
         shader.setUniformf(u_weightExponentLocation, Constants.WEIGHT_EXPONENT);
         shader.setUniformf(u_lineBrightnessMultiplierLocation, Constants.LINE_BRIGHTNESS_MULTIPLIER);
 
-        batch.draw(texture, 0 - this.width / 2, 0 - this.height / 2); // Draw texture without adjustments
-        shader.end();
+        batch.draw(texture, 0 - this.width / 2f, 0 - this.height / 2f); // Draw texture without adjustments
         batch.end();
     }
 

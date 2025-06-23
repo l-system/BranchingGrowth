@@ -45,3 +45,7 @@ Feel free to experiment with the constants in `Constants.java` to create differe
 - OpenGL-compatible graphics card
 
 *Note: This is a hobby project created for learning and experimentation with procedural graphics and L-systems.*
+
+
+![image](https://github.com/user-attachments/assets/386ddf95-06f0-46da-b23d-b513a3e916ac)
+
